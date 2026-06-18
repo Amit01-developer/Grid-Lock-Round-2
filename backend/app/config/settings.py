@@ -30,7 +30,11 @@ class Settings(BaseSettings):
 
     ai_processing_enabled: bool = False
     yolo_model_path: Path | None = None
+    yolo_confidence_threshold: float = Field(default=0.35, ge=0.05, le=0.95)
+    yolo_image_size: int = Field(default=960, ge=320, le=1920)
     ocr_languages: list[str] = ["en"]
+    ocr_min_confidence: float = Field(default=0.25, ge=0.0, le=1.0)
+    evidence_dir_name: str = "evidence"
 
     log_level: str = Field(default="INFO", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
 
@@ -47,6 +51,13 @@ class Settings(BaseSettings):
     def split_csv(cls, value: Any) -> Any:
         if isinstance(value, str):
             return [item.strip() for item in value.split(",") if item.strip()]
+        return value
+
+    @field_validator("yolo_model_path", mode="before")
+    @classmethod
+    def empty_path_as_none(cls, value: Any) -> Any:
+        if value == "":
+            return None
         return value
 
     @field_validator("upload_dir", "yolo_model_path", mode="after")

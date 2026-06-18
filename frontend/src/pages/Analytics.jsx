@@ -1,6 +1,10 @@
+import { AlertTriangle, CalendarDays, Moon, School, ShieldCheck } from 'lucide-react';
+import SafetyIndexPanel from '../components/analytics/SafetyIndexPanel.jsx';
+import DailyStatisticsChart from '../components/charts/DailyStatisticsChart.jsx';
 import StatusDoughnutChart from '../components/charts/StatusDoughnutChart.jsx';
 import TrendLineChart from '../components/charts/TrendLineChart.jsx';
 import ViolationTypeChart from '../components/charts/ViolationTypeChart.jsx';
+import WeeklyStatisticsChart from '../components/charts/WeeklyStatisticsChart.jsx';
 import EmptyState from '../components/states/EmptyState.jsx';
 import ErrorState from '../components/states/ErrorState.jsx';
 import LoadingState from '../components/states/LoadingState.jsx';
@@ -36,6 +40,37 @@ export default function Analytics() {
         <MetricCard title="Rejected" value={formatNumber(data.rejected)} detail="Dismissed records" />
       </section>
 
+      <section className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <MetricCard
+          title="Safety Index"
+          value={`${data.safety_index?.score ?? 100}/100`}
+          detail={`${data.safety_index?.risk_level || 'low'} risk posture`}
+          icon={ShieldCheck}
+          tone={(data.safety_index?.score ?? 100) >= 75 ? 'success' : 'warning'}
+        />
+        <MetricCard
+          title="Severity score"
+          value={formatNumber(data.safety_index?.total_severity)}
+          detail="Weighted policy risk"
+          icon={AlertTriangle}
+          tone="danger"
+        />
+        <MetricCard
+          title="Night violations"
+          value={formatNumber(data.safety_index?.night_violations)}
+          detail="Includes +10 severity"
+          icon={Moon}
+          tone="warning"
+        />
+        <MetricCard
+          title="School zone"
+          value={formatNumber(data.safety_index?.school_zone_violations)}
+          detail="Includes +15 severity"
+          icon={School}
+          tone="default"
+        />
+      </section>
+
       <section className="mt-5 grid gap-5 xl:grid-cols-3">
         <div className="surface p-5 xl:col-span-2">
           <h2 className="mb-4 text-base font-semibold text-slate-950 dark:text-white">Daily Trend</h2>
@@ -56,6 +91,36 @@ export default function Analytics() {
             </div>
           ) : (
             <EmptyState title="No status data" message="Status counts appear after violations are created." />
+          )}
+        </div>
+      </section>
+
+      <section className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="surface p-5">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-base font-semibold text-slate-950 dark:text-white">Daily Statistics</h2>
+            <CalendarDays size={18} className="text-slate-500" />
+          </div>
+          {data.daily_statistics?.length ? (
+            <div className="h-80">
+              <DailyStatisticsChart data={data.daily_statistics} />
+            </div>
+          ) : (
+            <EmptyState title="No daily statistics" message="Daily totals and safety index appear after violations are detected." />
+          )}
+        </div>
+        <SafetyIndexPanel safetyIndex={data.safety_index} />
+      </section>
+
+      <section className="mt-5">
+        <div className="surface p-5">
+          <h2 className="mb-4 text-base font-semibold text-slate-950 dark:text-white">Weekly Statistics</h2>
+          {data.weekly_statistics?.length ? (
+            <div className="h-80">
+              <WeeklyStatisticsChart data={data.weekly_statistics} />
+            </div>
+          ) : (
+            <EmptyState title="No weekly statistics" message="Weekly severity and volume will appear as evidence accumulates." />
           )}
         </div>
       </section>

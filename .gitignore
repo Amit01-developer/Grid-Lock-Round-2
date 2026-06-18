@@ -6,8 +6,12 @@ frontend/dist/
 backend/__pycache__/
 backend/*.pyc
 backend/.venv/
+backend/venv/
+backend/storage/
+backend/models/*.pt
 
 # Environment variables
+.env
 backend/.env
 frontend/.env
 

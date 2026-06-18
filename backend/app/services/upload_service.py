@@ -53,6 +53,8 @@ class UploadService:
 
             image.processing_status = ImageProcessingStatus.PROCESSING
             result = self.ai_pipeline.process(stored_file.path)
+            image.width = result.image_width
+            image.height = result.image_height
             detected_violations = self._persist_pipeline_result(db, image, result)
 
             image.processing_status = ImageProcessingStatus.COMPLETED

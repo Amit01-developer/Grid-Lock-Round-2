@@ -10,6 +10,8 @@ class HeatmapPoint(BaseModel):
     latitude: float
     longitude: float
     intensity: int = Field(ge=0)
+    severity_score: int = Field(default=0, ge=0)
+    safety_index: int = Field(default=100, ge=0, le=100)
     dominant_violation_type: str | None = None
 
 

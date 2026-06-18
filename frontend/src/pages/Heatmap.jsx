@@ -100,6 +100,9 @@ export default function Heatmap() {
                     <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                       Dominant: {formatViolationType(point.dominant_violation_type)}
                     </div>
+                    <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      Severity: {formatNumber(point.severity_score)} | Safety Index: {point.safety_index ?? 100}/100
+                    </div>
                   </div>
                 ))}
               </div>

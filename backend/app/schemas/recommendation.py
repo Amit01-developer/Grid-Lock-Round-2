@@ -13,9 +13,13 @@ class Recommendation(BaseModel):
     location_name: str | None = None
     violation_type: str | None = None
     estimated_impact: str
+    severity_score: int = Field(default=0, ge=0)
+    action: str | None = None
 
 
 class RecommendationResponse(BaseModel):
     generated_from_violations: int = Field(ge=0)
+    safety_index: int = Field(default=100, ge=0, le=100)
+    total_severity: int = Field(default=0, ge=0)
     recommendations: list[Recommendation]
 

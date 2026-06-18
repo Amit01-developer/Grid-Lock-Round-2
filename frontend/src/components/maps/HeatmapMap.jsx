@@ -16,6 +16,16 @@ function intensityColor(value) {
   return '#0f766e';
 }
 
+function popupContent(point) {
+  return `
+    <strong>${point.camera_name}</strong><br>
+    ${point.location_name}<br>
+    ${point.intensity} violations<br>
+    Severity: ${point.severity_score || 0}<br>
+    Safety Index: ${point.safety_index ?? 100}/100
+  `;
+}
+
 export default function HeatmapMap({ points = [] }) {
   const mapRef = useRef(null);
   const elementRef = useRef(null);
@@ -58,9 +68,7 @@ export default function HeatmapMap({ points = [] }) {
         fillOpacity: 0.35,
         weight: 2,
       })
-        .bindPopup(
-          `<strong>${point.camera_name}</strong><br>${point.location_name}<br>${point.intensity} violations`,
-        )
+        .bindPopup(popupContent(point))
         .addTo(layer);
     });
 

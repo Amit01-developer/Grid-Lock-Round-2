@@ -46,7 +46,8 @@ export default function Recommendations() {
           <div>
             <h2 className="text-base font-semibold text-slate-950 dark:text-white">Recommendation Basis</h2>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              Generated from {formatNumber(data?.generated_from_violations)} violation records.
+              Generated from {formatNumber(data?.generated_from_violations)} violation records with a safety index of{' '}
+              {data?.safety_index ?? 100}/100.
             </p>
           </div>
           <div className="flex h-12 w-12 items-center justify-center bg-slate-100 text-civic-authority dark:bg-slate-900 dark:text-teal-300">
@@ -87,6 +88,8 @@ export default function Recommendations() {
                 <Meta label="Violation" value={formatViolationType(recommendation.violation_type)} />
                 <Meta label="Camera" value={recommendation.camera_name || 'All cameras'} />
                 <Meta label="Impact" value={recommendation.estimated_impact} />
+                <Meta label="Severity" value={formatNumber(recommendation.severity_score)} />
+                <Meta label="Action" value={recommendation.action || 'Review enforcement posture'} />
               </div>
             </article>
           ))}

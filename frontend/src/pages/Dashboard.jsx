@@ -5,6 +5,7 @@ import {
   FileSearch,
   ShieldCheck,
 } from 'lucide-react';
+import SafetyIndexPanel from '../components/analytics/SafetyIndexPanel.jsx';
 import TrendLineChart from '../components/charts/TrendLineChart.jsx';
 import ViolationTypeChart from '../components/charts/ViolationTypeChart.jsx';
 import EmptyState from '../components/states/EmptyState.jsx';
@@ -15,7 +16,7 @@ import PageHeader from '../components/ui/PageHeader.jsx';
 import ViolationTable from '../components/violations/ViolationTable.jsx';
 import useAsyncData from '../hooks/useAsyncData.js';
 import { getAnalytics, getViolations } from '../services/api.js';
-import { clamp, formatNumber } from '../utils/formatters.js';
+import { formatNumber } from '../utils/formatters.js';
 
 export default function Dashboard() {
   const { data, error, loading, reload } = useAsyncData(async () => {
@@ -39,7 +40,7 @@ export default function Dashboard() {
   const total = analytics?.total_violations || 0;
   const criticalAlerts = getCriticalAlertCount(analytics?.by_type || []);
   const peakWindow = analytics?.peak_hours || 'N/A';
-  const safetyIndex = getSafetyIndex(analytics);
+  const safetyIndex = analytics?.safety_index?.score ?? 100;
 
   return (
     <>
@@ -118,6 +119,10 @@ export default function Dashboard() {
       </section>
 
       <section className="mt-5">
+        <SafetyIndexPanel safetyIndex={analytics.safety_index} />
+      </section>
+
+      <section className="mt-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-base font-semibold text-slate-950 dark:text-white">Recent Evidence</h2>
           <span className="text-sm text-slate-500 dark:text-slate-400">{formatNumber(data.violations?.total)} records</span>
@@ -138,12 +143,3 @@ function getCriticalAlertCount(byType) {
     .reduce((total, item) => total + item.count, 0);
 }
 
-function getSafetyIndex(analytics) {
-  const total = analytics?.total_violations || 0;
-  if (!total) {
-    return 100;
-  }
-  const confirmedRisk = (analytics.confirmed || 0) / total;
-  const pendingRisk = (analytics.pending_review || 0) / total;
-  return clamp(Math.round(100 - confirmedRisk * 45 - pendingRisk * 20), 0, 100);
-}
