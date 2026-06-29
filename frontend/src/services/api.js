@@ -1,4 +1,18 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const PRODUCTION_API_BASE_URL = 'https://grid-lock-round-2.onrender.com';
+
+function getApiBaseUrl() {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+
+  if (typeof window !== 'undefined' && window.location.hostname.endsWith('vercel.app')) {
+    return PRODUCTION_API_BASE_URL;
+  }
+
+  return '/api';
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
