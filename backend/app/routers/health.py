@@ -12,23 +12,6 @@ from app.schemas.common import HealthResponse
 router = APIRouter(tags=["health"])
 
 
-@router.get("/")
-def root() -> dict[str, object]:
-    return {
-        "status": "running",
-        "message": "TraffiSense AI Backend is running.",
-        "app_name": settings.app_name,
-        "version": settings.app_version,
-        "environment": settings.environment,
-        "links": {
-            "health": "/health",
-            "docs": "/docs",
-            "analytics": "/analytics",
-            "frontend": "https://grid-lock-round-2.vercel.app/dashboard",
-        },
-    }
-
-
 @router.get("/health", response_model=HealthResponse)
 def health_check(db: Session = Depends(get_db)) -> HealthResponse:
     db.execute(text("SELECT 1"))

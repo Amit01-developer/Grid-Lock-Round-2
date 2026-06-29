@@ -60,6 +60,18 @@ class Settings(BaseSettings):
             return None
         return value
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, value: Any) -> Any:
+        if not isinstance(value, str):
+            return value
+        if value.startswith("postgresql://") and "+psycopg" not in value:
+            return value.replace("postgresql://", "postgresql+psycopg://", 1)
+        if value.startswith("sqlite:///./"):
+            relative_path = value.removeprefix("sqlite:///./")
+            return f"sqlite:///{BACKEND_DIR / relative_path}"
+        return value
+
     @field_validator("upload_dir", "yolo_model_path", mode="after")
     @classmethod
     def resolve_backend_relative_path(cls, value: Path | None) -> Path | None:
