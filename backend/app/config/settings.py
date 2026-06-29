@@ -1,9 +1,10 @@
 from functools import lru_cache
+import json
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -22,17 +23,24 @@ class Settings(BaseSettings):
     db_max_overflow: int = Field(default=20, ge=0, le=100)
     db_auto_create_tables: bool = False
 
-    cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    cors_origins: Annotated[list[str], NoDecode] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
 
     upload_dir: Path = BACKEND_DIR / "storage" / "uploads"
     max_upload_mb: int = Field(default=20, ge=1, le=100)
-    allowed_image_types: list[str] = ["image/jpeg", "image/png", "image/webp"]
+    allowed_image_types: Annotated[list[str], NoDecode] = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+    ]
 
     ai_processing_enabled: bool = False
     yolo_model_path: Path | None = None
     yolo_confidence_threshold: float = Field(default=0.35, ge=0.05, le=0.95)
     yolo_image_size: int = Field(default=960, ge=320, le=1920)
-    ocr_languages: list[str] = ["en"]
+    ocr_languages: Annotated[list[str], NoDecode] = ["en"]
     ocr_min_confidence: float = Field(default=0.25, ge=0.0, le=1.0)
     evidence_dir_name: str = "evidence"
 
@@ -48,8 +56,11 @@ class Settings(BaseSettings):
 
     @field_validator("cors_origins", "allowed_image_types", "ocr_languages", mode="before")
     @classmethod
-    def split_csv(cls, value: Any) -> Any:
+    def parse_list_env(cls, value: Any) -> Any:
         if isinstance(value, str):
+            stripped = value.strip()
+            if stripped.startswith("["):
+                return json.loads(stripped)
             return [item.strip() for item in value.split(",") if item.strip()]
         return value
 
